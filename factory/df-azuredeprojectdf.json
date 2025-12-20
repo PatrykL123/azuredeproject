@@ -1,0 +1,9 @@
+{
+	"name": "df-azuredeprojectdf",
+	"location": "germanywestcentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "7e9000c3-6b66-4ba1-9dcd-5d3eae9cdfd7",
+		"tenantId": "49e1176b-38e5-4206-8c51-ac4e088ca201"
+	}
+}
