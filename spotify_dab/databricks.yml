@@ -1,0 +1,38 @@
+
+bundle:
+  name: spotify_dab
+  uuid: f17bd89e-3f53-45b0-b3a3-63241a5295c6
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405614746706580.0.azuredatabricks.net
+      root_path: /Workspace/Users/patryk_lewandowski12@interia.pl/.bundle/${bundle.name}/${bundle.target}
+    presets:
+      source_linked_deployment: false
+    variables:
+      catalog: spotify_catalog
+      schema: ${workspace.current_user.short_name}
+
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-7405614746706580.0.azuredatabricks.net
+      root_path: /Workspace/prod/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: spotify_catalog
+      schema: prod
+    permissions:
+      - user_name: patryk_lewandowski12@interia.pl
+        level: CAN_MANAGE

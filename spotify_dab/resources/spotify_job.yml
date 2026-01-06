@@ -1,0 +1,17 @@
+resources:
+  jobs:
+    spotify_complete_etl_job:
+      name: spotify_complete_etl_job
+      
+
+      tasks:
+        - task_key: silver_ingestion_task
+          notebook_task:
+            notebook_path: ../src/silver/silver_Dimensions.ipynb
+            source: WORKSPACE
+        
+        - task_key: gold_dlt_task
+          depends_on:
+            - task_key: silver_ingestion_task
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.spotify_dab_etl.id}
