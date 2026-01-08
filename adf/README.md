@@ -7,7 +7,7 @@ It is designed to be scalable and operationally robust, featuring **automated in
 ## 🚀 Key Features
 
 * **Metadata-Driven Execution**: The pipeline reads a JSON configuration file (`loop_input`) to dynamically determine which tables to process.
-* **Incremental Loading (CDC-like)**: Implements a "High Watermark" strategy using `LastModifiedDate` or Timestamp columns (`cdc_col`) to fetch only new records.
+* **Incremental Loading (CDC-like)**: Using Timestamp columns (`cdc_col`) and persistent JSON file (`cdc.json`) stored in the Data Lake to fetch only new records.
 * **On-Demand Backfilling**: Uses the `from_date` parameter to manually override the incremental logic, allowing for historical data reloading without resetting database watermarks.
 * **Batch Orchestration**: Triggers the downstream Databricks processing job only after all tables have been successfully ingested.
 
@@ -63,15 +63,25 @@ The workflow follows these steps:
    - If `from_date` is not provided, the pipeline retrieves the last watermark from the control json file.
 
 4. **Copy Data**  
-   Queries Azure SQL and saves raw data to **ADLS Gen2** in **Parquet** format.
+   Queries Azure SQL WHERE (`cdc_col > @last_cdc`) and saves raw data to **ADLS Gen2** in **Parquet** format.
 
-5. **Update Watermark**  
-   Updates the control table with the new maximum timestamp  
-   *(only when running in standard incremental mode)*.
+5. **Update state**  
+   If data was copied, the pipeline overwrites the cdc.json file with the new maximum timestamp, marking the new checkpoint for the next run.
 
 6. **Trigger Transformation**  
    After the loop completes, the `Trigger_Silver_Gold` activity invokes the **Databricks Asset Bundle** job.
 
 ---
+
+## 🛠 Prerequisites
+
+- **Azure SQL Database**  
+  Source transactional system.
+
+- **Azure Data Lake Storage Gen2**  
+  Holds raw data, config (`loop_input`), and state files (`cdc.json`).
+
+- **Linked Services**  
+  Connections established for SQL, ADLS, and Databricks.
 
 
